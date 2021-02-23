@@ -20,15 +20,15 @@ Think of minikusari as the dual of the datalog query engine:
 ## Comparison with other Clojure rule engines
 
 While other rule engines have defined their own semantics and language, minikusari is intentionally kept small and without any additional cognitive overhead.
-If you know Datascript, you already know how to use minikusari. Play with the [interactive documentation]() and see for yourself.
+If you know Datascript, you already know how to use minikusari. Play with the [interactive documentation](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial1) and see for yourself.
 
 minikusari is therefore well suited as a learning tool to tinker with rule engines and see them at work.
-You can build fully working systems with it, such as an [inference engine]() or a [game](), but they're obviously not optimised for performance.
+You can build fully working systems with it, such as an [inference engine](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial2) or a [game](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial3), but they're obviously not optimised for performance.
 
 More mature and "production ready" solutions already exist for Clojure:
 - [clara](https://github.com/cerner/clara-rules) led the way on forward chaining in Clojure. Its syntax might be a bit tricky to get at first, but it's a battle tested library 
 - [zeder](https://www.youtube.com/watch?v=1E2CoObAaPQ) was the first to play with the idea of rules engines built on top of the Datomic model, but it was never released as an OS library
-- [odoyle](https://github.com/oakes/odoyle-rules) it's the most recent library and it's used for both inference and as a game engine. It's the main inspiration for minikusari, and the reason I wanted to build a similar experience on top of Datascript. 
+- [odoyle](https://github.com/oakes/odoyle-rules) it's the most recent library, and it's used for both inference and as a game engine. It's the main inspiration for minikusari, and the reason I wanted to build a similar experience on top of Datascript. 
 
 ## Naming
 

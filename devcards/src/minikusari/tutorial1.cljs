@@ -133,5 +133,5 @@
 
   Compared with backward chaining inference, where you already have all the facts and you want to find a subset that matches a certain condition (hey, like a db!), forward chaining shines in a system that is constantly accumulating new facts (hey, like a game!) to easily generate derived data.
 
-  Check minikusari in action and discover how you can [solve crimes]() or [make things fly]() with it")
+  Check minikusari in action and discover how you can [solve crimes](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial2) or [make things fly](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial3) with it")
 
