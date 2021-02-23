@@ -1,0 +1,2 @@
+{:paths ["src"]
+ :deps  {datascript {:mvn/version "1.0.3"}}}

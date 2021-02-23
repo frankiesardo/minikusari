@@ -1,0 +1,4 @@
+^{:watch-dirs ["src"]
+  :css-dirs ["resources/public/css"]}
+{:main minikusari.intro
+ :devcards true}

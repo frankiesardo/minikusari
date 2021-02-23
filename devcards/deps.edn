@@ -1,0 +1,11 @@
+{:deps {org.clojure/clojure {:mvn/version "1.10.0"}
+        org.clojure/clojurescript {:mvn/version "1.10.773"}
+        devcards/devcards {:mvn/version "0.2.7"}
+        frankiesardo/minikusari {:local/root "../"}}
+ :paths ["src" "resources"]
+ :aliases {:fig {:extra-deps
+                  {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
+                   com.bhauman/figwheel-main {:mvn/version "0.2.11"}}
+                 :extra-paths ["target" "test"]}
+           :build {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
+           :min   {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}}}
