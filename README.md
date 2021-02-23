@@ -20,10 +20,10 @@ Think of minikusari as the dual of the datalog query engine:
 ## Comparison with other Clojure rule engines
 
 While other rule engines have defined their own semantics and language, minikusari is intentionally kept small and without any additional cognitive overhead.
-If you know Datascript, you already know how to use minikusari. Play with the [interactive documentation](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial1) and see for yourself.
+If you know Datascript, you already know how to use minikusari. Go to the [interactive documentation](https://frankiesardo.github.io/minikusari/#!/minikusari.tutorial1) and see for yourself.
 
 minikusari is therefore well suited as a learning tool to tinker with rule engines and see them at work.
-You can build fully working systems with it, such as an [inference engine](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial2) or a [game](https://frankiesardo.github.io/minikusari/index.html#!/minikusari.tutorial3), but they're obviously not optimised for performance.
+You can build fully working systems with it, such as an [inference engine](https://frankiesardo.github.io/minikusari/#!/minikusari.tutorial2) or a [game](https://frankiesardo.github.io/minikusari/#!/minikusari.tutorial3), but they're obviously not optimised for performance.
 
 More mature and "production ready" solutions already exist for Clojure:
 - [clara](https://github.com/cerner/clara-rules) led the way on forward chaining in Clojure. Its syntax might be a bit tricky to get at first, but it's a battle tested library 
