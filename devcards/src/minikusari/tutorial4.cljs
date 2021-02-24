@@ -119,7 +119,11 @@
 
   "When you backtrack the previous qu8een position you want to clear the list of positions you tried with the current one, because they are valid positions to try again"
 
-  "That's all we need, literally, two rules (and a little help from Datascript). Check the interactive version below")
+  "That's all we need, literally, two rules (and a little help from Datascript)."
+
+  (dc/mkdn-pprint-source rules)
+
+  "You can check the interactive version below and observe the engine trying to place a queen at a time")
 
 (defcard socially-distanced-queens
   "Note to self: textual chessboards are so 80's but some people might not like it"
