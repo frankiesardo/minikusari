@@ -38,8 +38,7 @@
   (+ start-y (* 30 (js/Math.sin (/ time-delta 300)))))
 
 (defn new-y [time-delta flappy-y]
-  (let [jump-vel 21
-        cur-vel (- jump-vel (* time-delta gravity))
+  (let [cur-vel (- jump-vel (* time-delta gravity))
         new-y (- flappy-y cur-vel)]
     (min new-y (- bottom-y flappy-height))))
 

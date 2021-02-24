@@ -27,8 +27,9 @@ You can build fully working systems with it, such as an [inference engine](https
 
 More mature and "production ready" solutions already exist for Clojure:
 - [clara](https://github.com/cerner/clara-rules) led the way on forward chaining in Clojure. Its syntax might be a bit tricky to get at first, but it's a battle tested library 
+- [mimir](https://github.com/hraberg/mimir) is a fantastic implementation of the Rete Algorithm in clojure
 - [zeder](https://www.youtube.com/watch?v=1E2CoObAaPQ) was the first to play with the idea of rules engines built on top of the Datomic model, but it was never released as an OS library
-- [odoyle](https://github.com/oakes/odoyle-rules) it's the most recent library, and it's used for both inference and as a game engine. It's the main inspiration for minikusari, and the reason I wanted to build a similar experience on top of Datascript. 
+- [odoyle](https://github.com/oakes/odoyle-rules) is the most recent library, and it's used for both inference and as a game engine. It's the main inspiration for minikusari, and the reason I wanted to build a similar experience on top of Datascript
 
 ## Naming
 
