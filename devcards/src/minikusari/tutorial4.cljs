@@ -46,13 +46,13 @@
     (for [x (range 8)] {:queen/x x})))
 
 (defn unassigned [db]
-  (d/q '{:find [(min ?e) .]
+  (d/q '{:find  [(min ?e) .]
          :where [[?e :queen/x]
                  [(missing? $ ?e :queen/y)]]}
        db))
 
 (defn previous [db]
-  (d/q '{:find [(max ?e) .]
+  (d/q '{:find  [(max ?e) .]
          :where [[?e :queen/x]
                  [?e :queen/y]]}
        db))
@@ -126,19 +126,21 @@
   "You can check the interactive version below and observe the engine trying to place a queen at a time")
 
 (defcard socially-distanced-queens
-  "Note to self: textual chessboards are so 80's but some people might not like it"
   (fn [data-atom]
     (let [db @data-atom
           queens (d/q '{:find [?x ?y] :where [[?e :queen/y ?y] [?e :queen/x ?x]]} db)
           next-step (fn [] (swap! data-atom #(d/db-with % (for [rule rules tx (r rule %)] tx))))
           clear (fn [] (reset! data-atom queens-db))]
       (sab/html
-        [:div {:style {:margin :auto}}
-         [:table
+        [:div {:style {:margin "0px auto"}}
+         [:table {:style {:border "5px solid #333"}}
           [:tbody
            (for [x (range 8)]
              [:tr (for [y (range 8)]
-                    [:th (if (queens [x y]) "Q" "[ ]")])])]]
-         [:button {:onClick clear} "Clear"]
+                    [:td {:style {:width           48 :height 48
+                                  :fontSize        26 :textAlign :center
+                                  :backgroundColor (if (even? (+ x y)) "white" "#999")}}
+                     (if (queens [x y]) "\uD83D\uDC51" " ")])])]]
+         [:button {:style {:margin 8} :onClick clear} "Clear"]
          (when (< (count queens) 8) [:button {:onClick next-step} "Next step"])])))
   queens-db)
