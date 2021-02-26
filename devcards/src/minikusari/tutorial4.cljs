@@ -62,19 +62,19 @@
     (shuffle (for [next-y (range 8) :when (socially-distanced? next-y positions)] next-y))))
 
 (def rules
-  [{:when '[[(unassigned $) ?e]
+  [{:when '[[(unassigned $) ?queen]
             [(valid-y $) [?y ...]]
-            (not [?e :queen/tried ?y])]
-    :then '[[:db/add ?e :queen/y ?y]]
+            (not [?queen :queen/tried ?y])]
+    :then '[[:db/add ?queen :queen/y ?y]]
     :args {'unassigned unassigned 'valid-y valid-y}}
-   {:when '[[(unassigned $) ?e]
+   {:when '[[(unassigned $) ?queen]
             (not [(valid-y $) [?y ...]]
-                 (not [?e :queen/tried ?y]))
+                 (not [?queen :queen/tried ?y]))
             [(previous $) ?prev]
             [?prev :queen/y ?wrong-y]]
     :then '[[:db.fn/retractAttribute ?prev :queen/y]
             [:db/add ?prev :queen/tried ?wrong-y]
-            [:db.fn/retractAttribute ?e :queen/tried]]
+            [:db.fn/retractAttribute ?queen :queen/tried]]
     :args {'unassigned unassigned 'valid-y valid-y 'previous previous}}])
 
 (defcard-doc

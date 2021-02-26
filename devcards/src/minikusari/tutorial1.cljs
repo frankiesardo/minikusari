@@ -127,11 +127,89 @@
             [7 :ballot/full-name "Sarah Doe"]]))))
 
 (defcard-doc
-  "Congrats! You have learned how to use a rule engine to generate new facts based on existing ones!
+  "Congrats! You have learned how to use a rule engine to generate new facts based on existing ones!"
 
-  Forward chaining inference is pretty useful, even if it's very basic like this one.
+  "Forward chaining inference is pretty useful, even if it's very basic like this one."
 
-  Compared with backward chaining inference, where you already have all the facts and you want to find a subset that matches a certain condition (hey, like a db!), forward chaining shines in a system that is constantly accumulating new facts (hey, like a game!) to easily generate derived data.
+  "Compared with backward chaining inference, where you already have all the facts and you want to find a subset that matches a certain condition (hey, like a db!), forward chaining shines in a system that is constantly accumulating new facts (hey, like a game!) to easily generate derived data."
 
-  Check the other tutorials to observe minikusari in action and discover how you can **solve crimes** or **make things fly** with it")
+  "Check the other tutorials to observe minikusari in action and discover how you can **solve crimes** or **make things fly** with it")
+
+(defcard-doc
+  "## Current limitations and future work"
+
+  "### The unused symbol problem")
+
+(deftest unused-symbols-test
+  (testing "Binding the result of a function will not get evaluated if it's not part of the `then` clause. This works"
+    (is (= []
+           (r {:when '[[?e :person/age 14]
+                       [(?my-fn) ?result]
+                       [(< ?result 3)]]
+               :args {'?my-fn (fn [] 5)}
+               :then '[[:db/add ?e :person/kid? true]
+                       [:db/add :db/current-tx :meta/result ?result]]}
+              people-db))))
+  (testing "But if you remove `?result` from the `then` clause, it stops working"
+    (is (= [[:db/add 4 :person/kid? true]]
+           (r {:when '[[?e :person/age 14]
+                       [(?my-fn) ?result]
+                       [(< ?result 3)]]
+               :args {'?my-fn (fn [] 5)}
+               :then '[[:db/add ?e :person/kid? true]]}
+              people-db)))))
+
+(defcard-doc
+  "The suggested workaround is to add metadata to `:db/current-tx` so you can force Datascript to evaluate it."
+
+  "Track this bug on [Datascript](https://github.com/tonsky/datascript/issues/385) for more details."
+
+  "___"
+
+  "### The shape of the `then` clause")
+
+(deftest shape-of-then-clause-test
+  (testing "The supported syntax is a vector of vectors"
+    (is (= (r '{:when [[?e :person/age 14]] :then [[:db/add ?e :person/kid? true]]} people-db)
+           '[[:db/add 4 :person/kid? true]])))
+  (testing "Maps might be supported in the future, but not for now"
+    (is (not= (r '{:when [[?e :person/age 14]] :then [{:db/id ?e :person/kid? true}]} people-db)
+              '[[:db/add 4 :person/kid? true]]))))
+
+(defcard-doc
+  "___"
+
+  "### The `:args` key."
+
+  "I resisted adding this workaround for cljs because the rule stops being pure data and you have to put quotes around every vector."
+
+  "Possible way to solve that: use `multimethods`"
+
+  (dc/mkdn-pprint-code '(defmulti f first))
+
+  (dc/mkdn-pprint-code '(defmethod f :?my-fn [_ & args]))
+
+  (dc/mkdn-pprint-code '{:when '[[?e :person/last-name ?last]
+                                 [(f :?my-fn ?e) ?result]
+                                 [(< ?result 3)]]
+                         :then '[...]})
+
+  "But there's a bit too much magic for my taste. At least `args` is very explicit."
+
+  "___"
+
+  "### The network of constraints"
+
+  "It would be great to only trigger rules when the underlying data changes without having to specify `max-tx`."
+
+  "The current approach has severe limitations e.g. you want to recalculate when both t1 and t2 change, but maybe one infer loop changes t1 and another changes t2 and it's tricky to track that."
+
+  "I once wrote a 'percolator' for datomic for 'saved searches'. The idea is similar to the ElasticSearch percolator: I give you a query and you call me when the result of that query changes."
+
+  "But another interesting approach is to look at what [posh](https://github.com/denistakeda/re-posh) is doing ")
+
+
+
+
+
 
