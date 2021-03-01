@@ -43,39 +43,31 @@
   (d/db-with
     (d/empty-db
       {:queen/tried {:db/cardinality :db.cardinality/many}})
-    (for [x (range 8)] {:queen/x x})))
-
-(defn unassigned [db]
-  (d/q '{:find  [(min ?e) .]
-         :where [[?e :queen/x]
-                 [(missing? $ ?e :queen/y)]]}
-       db))
-
-(defn previous [db]
-  (d/q '{:find  [(max ?e) .]
-         :where [[?e :queen/x]
-                 [?e :queen/y]]}
-       db))
+    (concat (for [x (range 8)] {:queen/x x})
+            [{:queen/current 1}])))
 
 (defn valid-y [db]
   (let [positions (d/q '{:find [?x ?y] :where [[?e :queen/y ?y] [?e :queen/x ?x]]} db)]
     (shuffle (for [next-y (range 8) :when (socially-distanced? next-y positions)] next-y))))
 
 (def rules
-  [{:when '[[(unassigned $) ?queen]
+  [{:when '[[?e :queen/current ?queen]
             [(valid-y $) [?y ...]]
-            (not [?queen :queen/tried ?y])]
-    :then '[[:db/add ?queen :queen/y ?y]]
-    :args {'unassigned unassigned 'valid-y valid-y}}
-   {:when '[[(unassigned $) ?queen]
+            (not [?queen :queen/tried ?y])
+            [(inc ?queen) ?next]]
+    :then '[[:db/add ?queen :queen/y ?y]
+            [:db/add ?e :queen/current ?next]]
+    :args {'valid-y valid-y}}
+   {:when '[[?e :queen/current ?queen]
             (not [(valid-y $) [?y ...]]
                  (not [?queen :queen/tried ?y]))
-            [(previous $) ?prev]
+            [(dec ?queen) ?prev]
             [?prev :queen/y ?wrong-y]]
     :then '[[:db.fn/retractAttribute ?prev :queen/y]
             [:db/add ?prev :queen/tried ?wrong-y]
+            [:db/add ?e :queen/current ?prev]
             [:db.fn/retractAttribute ?queen :queen/tried]]
-    :args {'unassigned unassigned 'valid-y valid-y 'previous previous}}])
+    :args {'valid-y valid-y}}])
 
 (defcard-doc
   "We want to keep a list of `y` positions that we've tried for a queen, in case we need to backtrack and try a new one."
@@ -95,9 +87,7 @@
 
   (dc/mkdn-pprint-code (-> rules first (dissoc :args)))
 
-  "Where `unassigned` and `valid-y` get the relevant information from the db"
-
-  (dc/mkdn-pprint-source unassigned)
+  "Where `valid-y` gets the relevant information from the db"
 
   (dc/mkdn-pprint-source valid-y)
 
@@ -112,8 +102,6 @@
   "Well, if we cannot place the current queen, we want to remove the `y` position of the previous one and save the fact that that is not a position to try again"
 
   (dc/mkdn-pprint-code (-> rules second (dissoc :args)))
-
-  (dc/mkdn-pprint-source previous)
 
   "A little detail that is easy to miss is the last assertion in the second rule `[:db.fn/retractAttribute ?e :queen/tried]`. Why do we need that?"
 

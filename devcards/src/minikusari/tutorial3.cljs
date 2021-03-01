@@ -63,8 +63,7 @@
   (+ pillar-spacing (d/q '[:find (max ?cur-x) . :where [?e :pillar/cur-x ?cur-x]] db)))
 
 (defn in-pillar? [cur-x]
-  (and (>= (+ flappy-x flappy-width)
-           cur-x)
+  (and (>= (+ flappy-x flappy-width) cur-x)
        (< flappy-x (+ cur-x pillar-width))))
 
 (defn in-pillar-gap? [cur-y upper-height]
