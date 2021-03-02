@@ -8,9 +8,9 @@
     [devcards.core :as dc :refer [defcard-doc deftest defcard]]
     [cljs.test :refer [testing is]]))
 
-(defn socially-distanced? [next-y positions]
-  (let [next-x (count positions)
-        not-ok (fn [[x y]] (or (= next-y y)
+(defn socially-distanced? [next-x positions]
+  (let [next-y (count positions)
+        not-ok (fn [[x y]] (or (= next-x x)
                                (= (js/Math.abs (- next-x x))
                                   (js/Math.abs (- next-y y)))))]
     (empty? (filter not-ok positions))))
@@ -26,7 +26,7 @@
 
   "Let's test it with a classic problem: placing eight queens on a chessboard in a socially distanced manner, so no two queens are on the same row, column or diagonal"
 
-  "Queens have position x and y and we will add them one at a time, so we just need to find the next valid `y` for our queen."
+  "Queens have position x and y and we will add them one at a time, so we just need to find the next valid `x` for our queen."
 
   (dc/mkdn-pprint-source socially-distanced?))
 
@@ -43,34 +43,34 @@
   (d/db-with
     (d/empty-db
       {:queen/tried {:db/cardinality :db.cardinality/many}})
-    (concat (for [x (range 8)] {:queen/x x})
+    (concat (for [y (range 8)] {:queen/y y})
             [{:queen/current 1}])))
 
-(defn valid-y [db]
+(defn valid-x [db]
   (let [positions (d/q '{:find [?x ?y] :where [[?e :queen/y ?y] [?e :queen/x ?x]]} db)]
-    (shuffle (for [next-y (range 8) :when (socially-distanced? next-y positions)] next-y))))
+    (shuffle (for [next-x (range 8) :when (socially-distanced? next-x positions)] next-x))))
 
 (def rules
   [{:when '[[?e :queen/current ?queen]
-            [(valid-y $) [?y ...]]
-            (not [?queen :queen/tried ?y])
+            [(valid-x $) [?x ...]]
+            (not [?queen :queen/tried ?x])
             [(inc ?queen) ?next]]
-    :then '[[:db/add ?queen :queen/y ?y]
+    :then '[[:db/add ?queen :queen/x ?x]
             [:db/add ?e :queen/current ?next]]
-    :args {'valid-y valid-y}}
+    :args {'valid-x valid-x}}
    {:when '[[?e :queen/current ?queen]
-            (not [(valid-y $) [?y ...]]
-                 (not [?queen :queen/tried ?y]))
+            (not [(valid-x $) [?x ...]]
+                 (not [?queen :queen/tried ?x]))
             [(dec ?queen) ?prev]
-            [?prev :queen/y ?wrong-y]]
-    :then '[[:db.fn/retractAttribute ?prev :queen/y]
-            [:db/add ?prev :queen/tried ?wrong-y]
+            [?prev :queen/x ?wrong-x]]
+    :then '[[:db.fn/retractAttribute ?prev :queen/x]
+            [:db/add ?prev :queen/tried ?wrong-x]
             [:db/add ?e :queen/current ?prev]
             [:db.fn/retractAttribute ?queen :queen/tried]]
-    :args {'valid-y valid-y}}])
+    :args {'valid-x valid-x}}])
 
 (defcard-doc
-  "We want to keep a list of `y` positions that we've tried for a queen, in case we need to backtrack and try a new one."
+  "We want to keep a list of `x` positions that we've tried for a queen, in case we need to backtrack and try a new one."
 
   "We need to add that to our Datascript schema"
 
@@ -87,11 +87,11 @@
 
   (dc/mkdn-pprint-code (-> rules first (dissoc :args)))
 
-  "Where `valid-y` gets the relevant information from the db"
+  "Where `valid-x` gets the relevant information from the db"
 
-  (dc/mkdn-pprint-source valid-y)
+  (dc/mkdn-pprint-source valid-x)
 
-  "Notice that `valid-y` returns more than one result (and we shuffle them to randomize the solutions) so every time this rule runs we're transacting multiple `[:db/add ?e :queen/y ?y]`"
+  "Notice that `valid-x` returns more than one result (and we shuffle them to randomize the solutions) so every time this rule runs we're transacting multiple `[:db/add ?e :queen/x ?x]`"
 
   "This is fine since the cardinality is `one` by default, so the last one will win, but if we were using an attribute with `:db.cardinality/many`, like our `queen/tried` that would be a problem, just so you know."
 
@@ -99,7 +99,7 @@
 
   "Let's say we placed 5 queens and the 6th one has nowhere to go"
 
-  "Well, if we cannot place the current queen, we want to remove the `y` position of the previous one and save the fact that that is not a position to try again"
+  "Well, if we cannot place the current queen, we want to remove the `x` position of the previous one and save the fact that that is not a position to try again"
 
   (dc/mkdn-pprint-code (-> rules second (dissoc :args)))
 
@@ -123,8 +123,8 @@
         [:div {:style {:margin "0px auto"}}
          [:table {:style {:border "5px solid #333"}}
           [:tbody
-           (for [x (range 8)]
-             [:tr (for [y (range 8)]
+           (for [y (range 8)]
+             [:tr (for [x (range 8)]
                     [:td {:style {:width           48 :height 48
                                   :fontSize        26 :textAlign :center
                                   :backgroundColor (if (even? (+ x y)) "white" "#999")}}
