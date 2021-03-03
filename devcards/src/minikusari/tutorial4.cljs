@@ -15,6 +15,7 @@
                                   (js/Math.abs (- next-y y)))))]
     (empty? (filter not-ok positions))))
 
+
 (defcard-doc
   "# Socially distanced queens"
 
@@ -105,7 +106,7 @@
 
   "A little detail that is easy to miss is the last assertion in the second rule `[:db.fn/retractAttribute ?e :queen/tried]`. Why do we need that?"
 
-  "When you backtrack the previous qu8een position you want to clear the list of positions you tried with the current one, because they are valid positions to try again"
+  "When you backtrack the previous queen position you want to clear the list of positions you tried with the current one, because they are valid positions to try again"
 
   "That's all we need, literally, two rules (and a little help from Datascript)."
 

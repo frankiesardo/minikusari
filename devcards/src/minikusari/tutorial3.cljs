@@ -112,7 +112,7 @@
             [:db/add ?game :game/start-time ?now]
             [:db/add ?flappy :flappy/start-time ?now]
             [:db/add ?pillar :pillar/start-time ?now]
-            [:db/add :db/current-tx :db/doc "Start" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Start"]]
     :args {'max-tx :max-tx}}
    ;; jump
    {:when '[[_ :action/jump ?now ?max-tx]
@@ -120,7 +120,7 @@
             [?flappy :flappy/active?]]
     :then '[[:db/add ?flappy :flappy/active? true]
             [:db/add ?flappy :flappy/start-time ?now]
-            [:db/add :db/current-tx :db/doc "Jump" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Jump"]]
     :args {'max-tx :max-tx}}
    ;; time update
    {:when '[[_ :action/update-time ?now ?max-tx]
@@ -130,7 +130,7 @@
             [(- ?now ?flappy-start-time) ?time-delta]]
     :then '[[:db/add ?game :game/current-time ?now]
             [:db/add ?game :game/time-delta ?time-delta]
-            [:db/add :db/current-tx :db/doc "Time update" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Time update"]]
     :args {'max-tx :max-tx}}
    ;; update flappy
    ;; NB: we have some branching logic here: one rule for when flappy is active, one for when it is not active
@@ -140,14 +140,14 @@
             [?flappy :flappy/cur-y ?cur-y]
             [(new-y ?time-delta ?cur-y) ?new-y]]
     :then '[[:db/add ?flappy :flappy/cur-y ?new-y]
-            [:db/add :db/current-tx :db/doc "Update active flappy" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Update active flappy"]]
     :args {'max-tx :max-tx 'new-y new-y}}
    {:when '[[?game :game/time-delta ?time-delta ?max-tx]
             [(max-tx $) ?max-tx]
             [?flappy :flappy/active? false]
             [(sine-wave ?time-delta) ?cur-y]]
     :then '[[:db/add ?flappy :flappy/cur-y ?cur-y]
-            [:db/add :db/current-tx :db/doc "Update inactive flappy" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Update inactive flappy"]]
     :args {'max-tx :max-tx 'sine-wave sine-wave}}
    ; update pillars
    {:when '[[?game :game/current-time ?current-time ?max-tx]
@@ -156,14 +156,14 @@
             [?pillar :pillar/start-time ?start-time]
             [(curr-pillar-pos ?current-time ?start-x ?start-time) ?new-x]]
     :then '[[:db/add ?pillar :pillar/cur-x ?new-x]
-            [:db/add :db/current-tx :db/doc "Update pillars" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Update pillars"]]
     :args {'max-tx :max-tx 'curr-pillar-pos curr-pillar-pos}}
    ;; delete old pillars
    {:when '[[?pillar :pillar/cur-x ?cur-x ?max-tx]
             [(max-tx $) ?max-tx]
             [(<= ?cur-x pillar-width)]]
     :then '[[:db/retractEntity ?pillar]
-            [:db/add :db/current-tx :db/doc "Delete pillar" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Delete pillar"]]
     :args {'max-tx :max-tx 'pillar-width (- pillar-width)}}
    ;; add new pillar
    ;; NB: only trigger this when the pillar position has just been updated
@@ -178,7 +178,7 @@
             [:db/add "new-pillar" :pillar/start-x ?pos-x]
             [:db/add "new-pillar" :pillar/cur-x ?pos-x]
             [:db/add "new-pillar" :pillar/upper-height ?height]
-            [:db/add :db/current-tx :db/doc "Add pillar" :tx/trigger ?max-tx :tx/hack ?count]]
+            [:db/add :db/current-tx :db/doc "Add pillar"]]
     :args {'max-tx :max-tx 'rand-height rand-height 'pillars-in-world pillars-in-world 'new-pillar-pos-x new-pillar-start-x}}
    ;; check collisions
    {:when '[[?pillar :pillar/cur-x ?cur-x ?max-tx]
@@ -188,7 +188,7 @@
             [?flappy :flappy/cur-y ?cur-y]
             [(collision? ?cur-x ?height ?cur-y)]]
     :then '[[:db/add ?game :game/started? false]
-            [:db/add :db/current-tx :db/doc "Check collision" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Check collision"]]
     :args {'max-tx :max-tx 'collision? collision?}}
    ;; update score
    {:when '[[?game :game/current-time ?current-time ?max-tx]
@@ -198,7 +198,7 @@
             [(calc-score ?current-time ?start-time) ?new-score]
             [(> ?new-score ?old-score)]]
     :then '[[:db/add ?game :game/score ?new-score]
-            [:db/add :db/current-tx :db/doc "Update score" :tx/trigger ?max-tx]]
+            [:db/add :db/current-tx :db/doc "Update score"]]
     :args {'max-tx :max-tx 'calc-score calc-score}}])
 
 (defn ui [{:game/keys [started? current-time score border-pos]}

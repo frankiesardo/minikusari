@@ -138,34 +138,6 @@
 (defcard-doc
   "## Current limitations and future work"
 
-  "### The unused symbol problem")
-
-(deftest unused-symbols-test
-  (testing "Binding the result of a function will not get evaluated if it's not part of the `then` clause. This works"
-    (is (= []
-           (r {:when '[[?e :person/age 14]
-                       [(?my-fn) ?result]
-                       [(< ?result 3)]]
-               :args {'?my-fn (fn [] 5)}
-               :then '[[:db/add ?e :person/kid? true]
-                       [:db/add :db/current-tx :meta/result ?result]]}
-              people-db))))
-  (testing "But if you remove `?result` from the `then` clause, it stops working"
-    (is (= [[:db/add 4 :person/kid? true]]
-           (r {:when '[[?e :person/age 14]
-                       [(?my-fn) ?result]
-                       [(< ?result 3)]]
-               :args {'?my-fn (fn [] 5)}
-               :then '[[:db/add ?e :person/kid? true]]}
-              people-db)))))
-
-(defcard-doc
-  "The suggested workaround is to add metadata to `:db/current-tx` so you can force Datascript to evaluate it."
-
-  "Track this bug on [Datascript](https://github.com/tonsky/datascript/issues/385) for more details."
-
-  "___"
-
   "### The shape of the `then` clause")
 
 (deftest shape-of-then-clause-test
@@ -177,8 +149,6 @@
               '[[:db/add 4 :person/kid? true]]))))
 
 (defcard-doc
-  "___"
-
   "### The `:args` key."
 
   "I resisted adding this workaround for cljs because the rule stops being pure data and you have to put quotes around every vector."
@@ -189,26 +159,52 @@
 
   (dc/mkdn-pprint-code '(defmethod f :?my-fn [_ & args]))
 
-  (dc/mkdn-pprint-code '{:when '[[?e :person/last-name ?last]
-                                 [(f :?my-fn ?e) ?result]
-                                 [(< ?result 3)]]
-                         :then '[...]})
+  (dc/mkdn-pprint-code '{:when [[?e :person/last-name ?last]
+                                [(f :?my-fn ?e) ?result]
+                                [(< ?result 3)]]
+                         :then [...]})
 
-  "But there's a bit too much magic for my taste. At least `args` is very explicit."
+  "But there's a bit too much magic for my taste. At least `args` is very explicit.")
 
-  "___"
+(defn at-least-one-changed
+  [{:keys [max-tx]} t1 & more]
+  (some #{max-tx} (cons t1 more)))
 
+(def last-name-rule
+  {:when '[[?e :person/last-name ?last ?t1]
+           [?e :person/first-name ?first ?t2]
+           [(at-least-one-changed $ ?t1 ?t2)]
+           [(str ?first " " ?last) ?full]]
+   :then '[[:db/add ?e :person/full-name ?full]]
+   :args {'at-least-one-changed at-least-one-changed}})
+
+(defcard-doc
   "### The network of constraints"
 
   "It would be great to only trigger rules when the underlying data changes without having to specify `max-tx`."
 
-  "The current approach has severe limitations e.g. you want to recalculate when both t1 and t2 change, but maybe one infer loop changes t1 and another changes t2 and it's tricky to track that."
+  "The current approach has some limitations. You can recalculate a rule when either t1 or t2 change by comparing them to ?max-tx"
+
+  (dc/mkdn-pprint-source at-least-one-changed)
+
+  (dc/mkdn-pprint-source last-name-rule))
+
+(deftest track-multiple-changes
+  (testing "Trigger when both tx change"
+    (is (= ["John Doe" "Jane Doe" "Sarah Doe" "Bobby Doe"] (map last (r last-name-rule people-db)))))
+  (testing "Trigger when just one change"
+    (is (let [db (d/db-with people-db [{:db/id 1 :person/first-name "Johnny"}])]
+          (= ["Johnny Doe"] (map last (r last-name-rule db))))))
+  (testing "Do not trigger when neither changed"
+    (is (let [db (d/db-with people-db [{:db/id 1 :person/age 46}])]
+          (= [] (map last (r last-name-rule db)))))))
+
+(defcard-doc
+  "While this works fine, there might be cases when one infer loop changes t1 and another changes t2 and it's tricky to track that."
 
   "I once wrote a 'percolator' for datomic for 'saved searches'. The idea is similar to the ElasticSearch percolator: I give you a query and you call me when the result of that query changes."
 
   "But another interesting approach is to look at what [posh](https://github.com/denistakeda/re-posh) is doing ")
-
-
 
 
 
