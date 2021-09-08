@@ -127,7 +127,7 @@
             [7 :ballot/full-name "Sarah Doe"]]))))
 
 (defcard-doc
-  "Congrats! You have learned how to use a rule engine to generate new facts based on existing ones!"
+  "Congrats! You have learned how to use a rules engine to generate new facts based on existing ones!"
 
   "Forward chaining inference is pretty useful, even if it's very basic like this one."
 
