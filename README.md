@@ -8,7 +8,7 @@
 > 
 > You would never break the chain (Never break the chain)
 
-[minikusari](https://github.com/frankiesardo/minikusari) is a minimal rule engine built on top of Datascript (and can work with Datomic or Datahike).
+[minikusari](https://github.com/frankiesardo/minikusari) is a minimal rules engine built on top of Datascript (and can work with Datomic or Datahike).
 
 `kusari` is Japanese for `chain`. The name `minikusari` is a tribute to `minikanren` (the embedded language for logic programming)
 
